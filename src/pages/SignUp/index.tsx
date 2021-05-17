@@ -7,6 +7,11 @@ import logoImg from '../../assets/codeschool-logo.png';
 
 import { Container, ContainerLogin, ContainerInfo, Title, Form, Error } from './styles';
 
+interface User {
+  id: number;
+  name: string;
+  email: string;
+}
 const SignUp: React.FC = () => {
   const [inputName, setInputName] = useState('');
   const [inputEmail, setInputEmail] = useState('');
@@ -21,32 +26,31 @@ const SignUp: React.FC = () => {
 
     e.preventDefault();
 
-    if (!inputName) {
+    if (!inputName || !inputEmail) {
       setInputError('Preencha todos os campos.');
       return;
-    } else if (!inputEmail) {
-        setInputError('Preencha todos os campos.');
-        return;
     }
     else if (!inputPassword) {
-      setInputError('Preencha todos os campos.');
+      setInputError('Senha não informada');
       return;
     }
 
     try {
 
-      await api.post('users', {
+      const response = await api.post<User>('users', {
         name: inputName,
         email: inputEmail,
         password: inputPassword,
       });
+
+      const user = response.data;
 
       setInputName('');
       setInputEmail('');
       setInputPassword('');
       setInputError('');
 
-      alert('Cadastro realizado com sucesso!');
+      alert(`Olá, ${user.name}. Seu cadastro foi realizado com sucesso!`);
 
       history.push('/signin');
 
@@ -92,7 +96,7 @@ const SignUp: React.FC = () => {
           />
           <button type="submit">Cadastrar</button>
 
-          <Link to="signin">Voltar para login</Link>
+          <Link to="/signin">Voltar para login</Link>
         </Form>
 
         {inputError && <Error>{inputError}</Error>}
